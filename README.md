@@ -1,9 +1,9 @@
 Deploy To Staging Server.
-1. To Deploy Client Application the Staging Server push the latest code to the master branch. After pushing or merging the latest code to the master branch, the latest 2. code will get updated to the latest server within 5 minutes.
+1. To Deploy Client Application the Staging Server push the latest code to the master branch. After pushing or merging the latest code to the master branch, the latest merged/pushed code will get updated to the server within 5 minutes.
 3. Link to the staging server (https://testing-platform-clientstaging.herokuapp.com/) 
 
 Deploy To Production Server.
-1. To Deploy Client Application the Production Server push the latest code to the main branch. After pushing or merging the latest code to the main branch, the latest code will get updated to the latest server within 5 minutes.
+1. To Deploy Client Application the Production Server push the latest code to the main branch. After pushing or merging the latest code to the main branch, the latest merged/pushed code will get updated to the latest server within 5 minutes.
 3. Link to the Production server (https://client.marketingmgmt.net/)
 
 How to change environment variable for Client app.
