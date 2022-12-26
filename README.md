@@ -12,3 +12,21 @@ How to change environment variable for Client app.
 
 ![image](https://user-images.githubusercontent.com/50096917/209548870-011ec664-649e-4a45-9db1-276e45c1dc42.png)
 3. After clicking on reveal config vars button all the environment will appear. Here you can add, edit or delete environment variables.
+
+‘/’ => Personal detail page (1st page)
+
+“/startTest” => Instruction Page where start button is available for starting test (2nd page)
+
+“/test” => here main test starts (3rd page)
+
+“/testCompleted” => Last page where test is submitted successfully message and feedback is to be given
+
+“/adminLogin” => Admin Login page
+
+“/table” => It Displays all the users
+
+“/retestExhausted” => Limit for attempting test is over
+
+
+
+
