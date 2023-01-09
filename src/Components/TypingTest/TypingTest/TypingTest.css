@@ -1,32 +1,45 @@
-.correct{
-    font-weight: bold;
+.correct {
+    /* font-weight: bold; */
     color: green;
 }
 
-.incorrect{
-    font-weight: bold;
+.incorrect {
+    /* font-weight: bold; */
     color: red;
 }
 
-.active{
+.active {
     margin: 5px;
-    font-weight: bold;
+    /* font-weight: bold; */
     background-color: lightgrey;
+    padding-left: 7px;
 }
 
-.para{
-    padding: 15px;
+.activeAndIncorrect {
+    margin: 5px;
+    /* font-weight: bold; */
+    background-color: rgb(209, 6, 6);
+    padding-left: 7px;
+}
+
+.para {
+    border: 1rem solid white;
+    padding: 0 15px;
+    /* height: 139px;
+    overflow: hidden; */
+    border-radius: 8px;
+    /* border: 1px solid #8eb6d8; */
     font-size: 2.2em;
-    line-height: 1.6em;
-    border: 1px solid lightgrey;
+    line-height: 1.7em;
+    /* border: 1px solid lightgrey; */
     background-color: white;
-    font-family: 'Times New Roman',Times,serif;
+    font-family: 'Times New Roman', Times, serif;
 }
 
-h2{
+h2 {
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 2.2em;
-    font-family: 'Times New Roman',Times,serif;
+    font-family: 'Times New Roman', Times, serif;
 }
