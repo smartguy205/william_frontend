@@ -30,14 +30,26 @@ function App() {
 
         try {
             const positionRes = await axios.post(`${process.env.REACT_APP_SERVER}/user/getposition`)
-            if (positionRes.data?.success)
-                setPositons(positionRes.data?.data);
+            if (positionRes?.data.success) {
+                let { data } = positionRes.data;
+                data = data.map(d => d.position)
+                //console.log(data)
+                setPositons(data);
+                setData((prev) => {
+                    return {
+                        ...prev,
+                        position: data[0],
+                    };
+                })
+            }
             else
                 setPositons([])
 
         } catch (error) {
-            setPositons(error.response?.data?.data)
-            toast.error(error.response?.data?.msg, {
+            // setPositons(data)
+
+            console.log(error);
+            toast.error(error.response.data.msg, {
                 position: 'top-center', style: { width: '28rem' }
             });
         }
@@ -56,6 +68,8 @@ function App() {
 
     // file
     const changeHandler = async (event) => {
+
+
         const fileSize = parseInt(event.target.files?.[0].size / 1000000);
         if (fileSize > 25) {
             toast.warning("Please upload a file smaller than 25 MB", {
@@ -68,14 +82,8 @@ function App() {
             formData.append("body", event.target.files[0])
 
             setSelectedFile(event.target.files[0]);
+            setSelectedFileData(event.target.files[0])
 
-            const reader = new FileReader()
-            reader.readAsText(event.target.files[0]);
-            reader.onload = async (e) => {
-                let text = (e.target.result)
-                text = Buffer.from(text).toString('base64')
-                setSelectedFileData(text)
-            };
         }
         catch (error) {
             console.log(error);
@@ -128,9 +136,11 @@ function App() {
     };
 
     const handleSubmit = async (e) => {
-        setLoading(true);
         e.preventDefault()
+        setLoading(true);
         try {
+            await axios.get(`${process.env.REACT_APP_SERVER}/admin/jobs/${data?.position}`);
+
             if (selectedFile?.name) {
                 let fileName = selectedFile.name.trim().replace(/\s/g, "_")
                 if (!fileName || !selectedFileData) {
@@ -147,11 +157,12 @@ function App() {
                                     body: selectedFileData,
                                 }, {
                                     headers: {
-                                        'Content-Type': 'multipart/form-data'
+                                        'Content-Type': 'multipart/form-data',
+                                        //'Content-Encoding': 'base64'
                                     }
                                 }).then((result) => {
+                                    console.log(result)
                                     if (result?.status) {
-
                                         SaveDataToDataBase({ file: true }, res.data.file);
                                     }
                                 }).catch(error => {
@@ -178,6 +189,7 @@ function App() {
             }
         }
         catch (err) {
+            console.log(err)
             toast.error(err.response.data.error, {
                 position: 'top-center', style: { width: '28rem' }
             });
@@ -236,13 +248,15 @@ function App() {
                     <label className="fw-normal">Choose Your Position: *</label>
                     <br />
                     <select
-                        value={data.position}
+                        value={data?.position}
                         name="position"
                         className="text"
                         required
                         onChange={handleChange}
                     >
-                        {positions?.map((p, index) => <option key={index} value={p}>{p}</option>)}
+                        {positions.length > 0 ? positions?.map((p, index) => <option key={index} value={p}>{p}</option>) :
+                            <option key={'no-position'} disabled>NO position </option>
+                        }
                     </select>
                     <br />
                     <label className="fw-normal">Select Language: *</label>
@@ -285,7 +299,10 @@ function App() {
                             accept=".pdf,.txt"
                             name="file"
                             style={{ display: "none" }}
-                            onChange={changeHandler} />
+                            onChange={changeHandler}
+
+                        />
+
                     </div>
                     {loading && selectedFile ?
                         (
@@ -294,10 +311,9 @@ function App() {
                                     <CircularProgress color="success" />
                                 </div>
                                 <div className="d-flex justify-content-center">
-                                    <p>Uploading file.. Please Wait for a while..</p>
+                                    <p>Please Wait.. your file is being uploaded</p>
                                 </div>
                             </>
-
                         ) :
                         (
                             <input className="submit" type="submit" value="Submit" />

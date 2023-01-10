@@ -1,16 +1,13 @@
 import axios from 'axios';
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router';
 import { useCookies } from 'react-cookie';
-import { AuthContext } from '../../contexts/auth';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import * as Sentry from '@sentry/react';
 
 const Login = () => {
-
-    const { UpdateAuth } = useContext(AuthContext);
 
     const navigate = useNavigate();
     const [cookies, setCookie, removeCookie] = useCookies(['email', 'password']);
@@ -46,11 +43,10 @@ const Login = () => {
     }
 
     const LoginAdmin = async (email, pass) => {
-
         try {
             if (!email || !pass) {
                 toast.warn("Enter email and password", {
-                    
+
                 });
                 return false
             }
@@ -62,18 +58,18 @@ const Login = () => {
             if (res.data.success) {
                 setCookie('email', email, { path: '/', expires: new Date(Date.now() + 24 * 60 * 60 * 1000) }); //2592000
                 setCookie('password', pass, { path: '/', expires: new Date(Date.now() + 24 * 60 * 60 * 1000) });
-                UpdateAuth(true);
+                //UpdateAuth(true);
                 navigate("/table");
             }
             else {
                 toast.success(res.data.msg);
                 removeCookie("email");
                 removeCookie("password");
-                UpdateAuth(false);
+                //UpdateAuth(false);
             }
         }
         catch (error) {
-            UpdateAuth(false);
+            //UpdateAuth(false);
             toast.error("Wrong Input Credentials", {
                 position: toast.POSITION.TOP_CENTER
             });
