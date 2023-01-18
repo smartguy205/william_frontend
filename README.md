@@ -4,7 +4,7 @@ Deploy To Staging Server.
 
 Deploy To Production Server.
 1. To Deploy Client Application the Production Server push the latest code to the main branch. After pushing or merging the latest code to the main branch, the latest merged/pushed code will get updated to the latest server within 5 minutes.
-3. Link to the Production server (https://client.marketingmgmt.net/)
+3. Link to the Production server (https://hire.marketingmgmt.net/)
 
 How to change environment variable for Client app.
 1. Log into teams heroku account or with account which have admin access to marketing-management teams.
