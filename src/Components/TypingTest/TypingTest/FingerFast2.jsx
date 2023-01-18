@@ -215,7 +215,7 @@ const FingerFast = () => {
                                 borderRadius: "4px", height: '2rem'
                             },
                         }}
-
+                        autoComplete={"off"}
                         sx={{
                             width: '75%', marginRight: '6px',
                             backgroundColor: 'white', border: 'none', borderRadius: "8px",
