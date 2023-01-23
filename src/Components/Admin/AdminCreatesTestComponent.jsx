@@ -25,7 +25,7 @@ export const testTypeValue = {
     3: "MCQ's + Typing Test",
     4: "Typing Test + MCQ's",
 }
-
+const languageOption = ["US", "UK", "IN", "GE"]
 const AdminCreatesTest = () => {
     const testTypeNew = [{ type: "MCQ's", checked: false }, { type: "Typing Test", checked: false }];
 
@@ -35,6 +35,7 @@ const AdminCreatesTest = () => {
     const [newType, setNewType] = useState(null);
 
     const positionRef = useRef();
+    const languageRef = useRef();
     const multiselectRef = useRef();
 
     useEffect(
@@ -44,6 +45,7 @@ const AdminCreatesTest = () => {
                 setData(data.map(item => { delete item.__v; return { ...item } }))
                 const position = await getAllPosition();
                 setPositionOptions(position);
+                languageRef.current.value = languageOption[0];
                 // console.log(position)
             })()
         }, []);
@@ -63,7 +65,7 @@ const AdminCreatesTest = () => {
 
     }
 
-    // const countryRef = useRef();
+
     //const [selectedCountries, setSelectedCountries] = React.useState([]);
 
     async function submit() {
@@ -90,7 +92,9 @@ const AdminCreatesTest = () => {
 
         const data = await addJobs({
             Countries: multiselectRef.current.state.selectedValues,
-            positionOptions: positionRef.current.value, testType: testType[newType]
+            positionOptions: positionRef.current.value,
+            testType: testType[newType],
+            language: languageRef.current.value
         })
 
         if (data.success) {
@@ -155,11 +159,12 @@ const AdminCreatesTest = () => {
                                 onChange={(e) => handlePositionChange(e.target.value)}
                             >
                                 {positionOptions?.map(position =>
-                                    <MenuItem key={position.id} value={position.position}>
+                                    <MenuItem key={position._id} value={position.position}>
                                         {position.position}</MenuItem>)
                                     ?? <MenuItem key={"ak"}>NO Position available</MenuItem>
                                 }
                             </Select>
+
                         </FormControl>
                     </Grid>
                     <Grid item xs={4}>
@@ -173,6 +178,20 @@ const AdminCreatesTest = () => {
                                 ref={multiselectRef}
                                 displayValue='Country' />
                         </FormControl>
+                        <InputLabel id="demo-simple-select-label">Language</InputLabel>
+                        <Select labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            label="Position"
+                            sx={{ width: '10rem' }}
+                            inputRef={languageRef}
+                            onChange={(e) => languageRef.current.value = (e.target.value)}
+                        >
+                            {languageOption?.map(lang =>
+                                <MenuItem key={lang} value={lang}>
+                                    {lang}</MenuItem>)
+                                ?? <MenuItem key={"ak"}>NO Language available</MenuItem>
+                            }
+                        </Select>
                     </Grid>
                     <Grid item xs={4}>
                         <FormControl sx={{ m: 3 }}>
@@ -188,7 +207,9 @@ const AdminCreatesTest = () => {
                             </FormGroup>
                             <TextField id="standard-basic" label={newType} variant="standard" disabled />
                         </FormControl>
+
                     </Grid>
+
                 </Grid>
                 <Stack>
                     <Stack sx={{ justifyContent: 'center', alignItems: 'center', }}>
@@ -198,9 +219,9 @@ const AdminCreatesTest = () => {
             </Container>
             <br />
             <Container sx={{ mb: 5 }}>
-                <DataTable header={["Country", "Position", "Test-Type"]}
+                <DataTable header={["Country", "Position", "Test-Type", "Language"]}
                     data={data.map(item => {
-                        return { ...item, test_type: testTypeValue[item.test_type] }
+                        return { ...item, language: item.language ?? "us", test_type: testTypeValue[item.test_type] }
                     })}
                     handleDelete={handleDelete}
                 />
