@@ -171,27 +171,14 @@ const AdminCreatesTest = () => {
                         <FormControl sx={{ m: 3 }} component="fieldset" variant="standard">
                             <FormLabel component="legend">Countries</FormLabel>
                             <Multiselect options={options}
-                                // onSelect={(country) => countryRef.current.value = (country)}
+                                //onSelect={(country) => console.log(country[0].Country)}
                                 // onRemove={(country) => countryRef.current.value = (country)}
                                 // onSelect={(country) => setSelectedCountries(country)}
                                 // onRemove={(country) => setSelectedCountries(country)}
                                 ref={multiselectRef}
                                 displayValue='Country' />
                         </FormControl>
-                        <InputLabel id="demo-simple-select-label">Language</InputLabel>
-                        <Select labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            label="Position"
-                            sx={{ width: '10rem' }}
-                            inputRef={languageRef}
-                            onChange={(e) => languageRef.current.value = (e.target.value)}
-                        >
-                            {languageOption?.map(lang =>
-                                <MenuItem key={lang} value={lang}>
-                                    {lang}</MenuItem>)
-                                ?? <MenuItem key={"ak"}>NO Language available</MenuItem>
-                            }
-                        </Select>
+
                     </Grid>
                     <Grid item xs={4}>
                         <FormControl sx={{ m: 3 }}>
@@ -207,9 +194,25 @@ const AdminCreatesTest = () => {
                             </FormGroup>
                             <TextField id="standard-basic" label={newType} variant="standard" disabled />
                         </FormControl>
-
                     </Grid>
-
+                    <Grid item xs={4}>
+                        <FormControl sx={{ m: 3 }}>
+                            <InputLabel id="demo-simple-select-label">Language</InputLabel>
+                            <Select labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                label="Position"
+                                sx={{ width: '10rem' }}
+                                inputRef={languageRef}
+                                onChange={(e) => languageRef.current.value = (e.target.value)}
+                            >
+                                {languageOption?.map(lang =>
+                                    <MenuItem key={lang} value={lang}>
+                                        {lang}</MenuItem>)
+                                    ?? <MenuItem key={"ak"}>NO Language available</MenuItem>
+                                }
+                            </Select>
+                        </FormControl>
+                    </Grid>
                 </Grid>
                 <Stack>
                     <Stack sx={{ justifyContent: 'center', alignItems: 'center', }}>

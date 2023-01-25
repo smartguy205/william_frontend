@@ -59,7 +59,7 @@ const FinalScreen = () => {
     //         document.removeEventListener('visibilitychange', focusFUnction);
     //     }
     // }, []);
-
+    const language = localStorage.getItem("language") ?? "us";
     const getQuestions = async () => {
         try {
             const testID = localStorage.getItem("testID");
@@ -136,7 +136,7 @@ const FinalScreen = () => {
                 //     navigate(routeTypeTest.Typing, { replace: true, state: { userID } });
                 //     // navigate("/typing-test", { replace: true, state: { userID } });
                 // }, 5000)
-                
+
                 return;
             }
             else
@@ -156,19 +156,21 @@ const FinalScreen = () => {
 
                 </Box>
 
-                {data[index]?.Images.length > 0 ? (
+                {data[index]?.Images?.length > 0 ? (
                     <Stack flexDirection='column' >
                         <Stack className="testing" sx={{ display: "flex", flexDirection: "row", justifyContent: 'space-between' }}>
 
 
                             <Card sx={{ flex: 1, boxShadow: 'none' }}>
-
                                 <QuestionTable data={data[index]} index={index} sendAns={setAns} Submit={Submit} />
                             </Card>
 
                             <Card sx={{ flex: 0.8, boxShadow: 'none' }}>
-                                {data[index].Images.map((img, key) => <img
-                                    src={"https://luke-pdf-image.s3.ap-south-1.amazonaws.com/" + img} key={key} className="img-fluid" />)}
+                                {data[index]?.Images?.map((img, key) => <img
+
+                                    src={"https://luke-images-bucket.s3.amazonaws.com/" + language + "/" + img}
+                                    key={key} className="img-fluid" />)}
+                                {/* {console.log(data[index])} */}
                             </Card>
                         </Stack>
 
