@@ -25,7 +25,7 @@ export const testTypeValue = {
     3: "MCQ's + Typing Test",
     4: "Typing Test + MCQ's",
 }
-const languageOption = ["US", "UK", "IN", "GE"]
+const languageOption = ["US", "UK",]
 const AdminCreatesTest = () => {
     const testTypeNew = [{ type: "MCQ's", checked: false }, { type: "Typing Test", checked: false }];
 
