@@ -59,7 +59,7 @@ const FinalScreen = () => {
     //         document.removeEventListener('visibilitychange', focusFUnction);
     //     }
     // }, []);
-    const language = localStorage.getItem("language") ?? "us";
+    const language = localStorage.getItem("language") ?? "all";
     const getQuestions = async () => {
         try {
             const testID = localStorage.getItem("testID");
@@ -167,10 +167,9 @@ const FinalScreen = () => {
 
                             <Card sx={{ flex: 0.8, boxShadow: 'none' }}>
                                 {data[index]?.Images?.map((img, key) => <img
-
-                                    src={"https://luke-images-bucket.s3.amazonaws.com/" + language + "/" + img}
+                                    //remove language
+                                    src={"https://luke-images-bucket.s3.amazonaws.com/" + language == "us" ? language + "/" : "" + img}
                                     key={key} className="img-fluid" />)}
-                                {/* {console.log(data[index])} */}
                             </Card>
                         </Stack>
 
