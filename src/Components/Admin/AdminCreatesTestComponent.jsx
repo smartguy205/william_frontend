@@ -25,7 +25,7 @@ export const testTypeValue = {
     3: "MCQ's + Typing Test",
     4: "Typing Test + MCQ's",
 }
-const languageOption = ["US", "UK",]
+const languageOption = ["UK", "US",]
 const AdminCreatesTest = () => {
     const testTypeNew = [{ type: "MCQ's", checked: false }, { type: "Typing Test", checked: false }];
 
@@ -45,7 +45,7 @@ const AdminCreatesTest = () => {
                 setData(data.map(item => { delete item.__v; return { ...item } }))
                 const position = await getAllPosition();
                 setPositionOptions(position);
-                languageRef.current.value = 'all';
+                languageRef.current.value = languageOption[0];
                 // console.log(position)
             })()
         }, []);
@@ -94,7 +94,7 @@ const AdminCreatesTest = () => {
             Countries: multiselectRef.current.state.selectedValues,
             positionOptions: positionRef.current.value,
             testType: testType[newType],
-            language: languageRef.current.value
+            language: languageRef.current.value.toLowerCase()
         })
 
         if (data.success) {
@@ -203,6 +203,7 @@ const AdminCreatesTest = () => {
                                 label="Position"
                                 sx={{ width: '10rem' }}
                                 inputRef={languageRef}
+                                defaultValue={"UK"}
                                 onChange={(e) => languageRef.current.value = (e.target.value)}
                             >
                                 {languageOption?.map(lang =>
