@@ -45,7 +45,7 @@ const AdminCreatesTest = () => {
                 setData(data.map(item => { delete item.__v; return { ...item } }))
                 const position = await getAllPosition();
                 setPositionOptions(position);
-                languageRef.current.value = languageOption[0];
+                languageRef.current.value = 'all';
                 // console.log(position)
             })()
         }, []);
