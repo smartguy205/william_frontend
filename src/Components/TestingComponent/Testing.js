@@ -168,7 +168,7 @@ const FinalScreen = () => {
                             <Card sx={{ flex: 0.8, boxShadow: 'none' }}>
                                 {data[index]?.Images?.map((img, key) => <img
                                     //remove languagesd
-                                    src={"https://luke-images-bucket.s3.amazonaws.com/" + language + "/" + img}
+                                    src={"https://luke-images-bucket.s3.amazonaws.com/" + language == "us" ? language + "/" : "" + img}
                                     key={key} className="img-fluid" />)}
                             </Card>
                         </Stack>
