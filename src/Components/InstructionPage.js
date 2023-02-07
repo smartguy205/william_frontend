@@ -35,10 +35,9 @@ const Instruction_Page = () => {
             const res = await axios.post(`${process.env.REACT_APP_SERVER}/user/StartTest`, data);
 
             if (res.data.success) {
-                const { testId, testType, language } = res.data;
+                const { testId, testType } = res.data;
                 if (testId) {
                     localStorage.setItem("testID", testId);
-                    localStorage.setItem("language", language);
                     //                               2 || 4 
                     if (testType === typeOfTest.Typing || testType === typeOfTest.Typing_MCQs) {
                         navigate(routeTypeTest.Typing)// + "?type=" + testType);

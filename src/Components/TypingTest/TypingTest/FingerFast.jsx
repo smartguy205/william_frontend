@@ -7,11 +7,10 @@ import { typeOfTest } from "../../../testTypeModal"
 import './TypingTest.css';
 import Timer from "../Timer/Timer";
 import { words } from "../../../static/words";
-import { useMemo } from "react";
 let Word = (props) => {
 
-    const { index, text, active, correct } = props;
-    //console.log({ index, text, active, correct })
+    const { text, active, correct } = props;
+
     if (correct === true && !active) {
         return <span className="correct">{text + " "}</span>
     }
@@ -24,9 +23,9 @@ let Word = (props) => {
         if (!correct && correct !== undefined) {
             return <span className="activeAndIncorrect">{text + " "}</span>
         }
-        return <span className={`active text${index}`}>{text + " "}</span>
+        return <span className="active">{text + " "}</span>
     }
-    return <span className={"text" + index}>{text} </span>
+    return <span>{text} </span>
 }
 
 
@@ -35,53 +34,43 @@ const getRandomSentences = () => {
     let line1 = (quotes_array1.substring(0, 80))
     let line2 = (quotes_array1.substring(80, 150))
     line2 = line2.trim();
-
-    return quotes_array1;
     return line1 + line2;
 }
 
-let index = 0, correctWordArrayStatic = [],
-    previous_position_top = 0,
-    line_height = 61, row_counter = 0;
-
+let index = 0;
+let correctWordArrayStatic = [];
 const FingerFast = () => {
 
     Word = React.memo(Word)
     const navigate = useNavigate();
     const inputRef = useRef();
-    const rowRef = useRef();
-    let cloud = useRef(getRandomSentences().split(' '));
+    const cloud = useRef(getRandomSentences().split(' '));
 
+    const [wordIndex, setIndex] = useState(0);
     const [startCounting, setStartCounting] = useState(false);
     const [activeWordIndex, setActiveWordIndex] = useState(0);
     const [correctWordArray, setCorrectWordArray] = useState([]);
     const [timeup, setTimeUp] = useState(false);
     const [mount, setMount] = useState(false);
 
-    const wordsA = useMemo(() => {
-        return cloud.current.slice(0, (activeWordIndex + 35)).map((word, index) => {
-            return <Word index={index} key={index} text={word}
-                active={index === activeWordIndex}
-                correct={correctWordArray[index]}
-            />
-        })
-    }, [correctWordArray])
-    const testID = localStorage.getItem("testID");
-    const userID = localStorage.getItem("userID");
+    // const testID = localStorage.getItem("testID");
+    // const userID = localStorage.getItem("userID");
     useEffect(() => {
+
         if (mount) {
-            line_height = 61;
-            previous_position_top = index = row_counter = 0;
-            const data = { testID, userID }
-            const res = axios.post(`${process.env.REACT_APP_SERVER}/user/typing-start`, data)
-                .then(res => res);
+            index = 0;
+            correctWordArrayStatic = [];
+            //     const data = { testID, userID, isTypingTest: true }
+            // const res = axios.post(`${process.env.REACT_APP_SERVER}/user/getQuestionFromId`, data)
+            //     .then(res => console.log(res));
         }
         setMount(true);
     }, [mount]);
 
-    // useEffect(() => {
-    //     console.log(correctWordArray)
-    // }, [correctWordArray])
+    useEffect(() => {
+        setCorrectWordArray([])
+        setActiveWordIndex(0)
+    }, [wordIndex])
 
     const processInput = (value) => {
 
@@ -91,72 +80,63 @@ const FingerFast = () => {
 
         if (value.endsWith(' ')) {
             setActiveWordIndex(index => index + 1)
+            index = index + 1;
+            if (cloud.current.length - 1 == activeWordIndex) {
+                setIndex(i => i + 1);
+                //cloud.current = (getRandomSentences()).split(' ')
+                cloud.current = (getRandomSentences()).split(' ')
+            }
+
             inputRef.current.value = "";
             // Correct Word
             const word = value.trim()
             setCorrectWordArray(data => {
                 const newResult = [...data]
                 newResult[activeWordIndex] = word === cloud.current[activeWordIndex]
+
                 return newResult
             })
+
+            correctWordArrayStatic.push(word === cloud.current[activeWordIndex]);
         }
         else {
-            let p = document.getElementsByClassName("text" + (activeWordIndex))[0];
-            const word = value.trim();
-            let size = word.length;
-            let correct = true;
-            for (let i = 0; i < size; i++) {
-                if (word[i] != cloud.current[activeWordIndex][i]) {
-                    correct = false;
-                    break;
+            const word = value.trim()
+            setCorrectWordArray(data => {
+                const newResult = [...data]
+                let size = word.length
+                let correct = true
+                for (let i = 0; i < size; i++) {
+                    if (word[i] != cloud.current[activeWordIndex][i]) {
+                        correct = false
+                        break
+                    }
                 }
-            }
+                newResult[activeWordIndex] = correct
+                return newResult
+            })
 
-            if (!correct) {
-                p.classList.add('activeAndIncorrect');
-            }
-            else p.classList.remove('activeAndIncorrect');
-
-
-            /*  setCorrectWordArray(data => {
-                  const newResult = [...data]
-                  let size = word.length
-                  let correct = true
-                  for (let i = 0; i < size; i++) {
-                      if (word[i] != cloud.current[activeWordIndex][i]) {
-                          correct = false;
-                          break;
-                      }
-                  }
-                  newResult[activeWordIndex] = correct
-                  return newResult
-              })*/
         }
-
-        let p = document.getElementsByClassName("text" + (activeWordIndex + 1))[0];
-        if (p.offsetTop > previous_position_top + 10) {
-            row_counter++;
-            previous_position_top = p.offsetTop;
-            let top = -1 * (line_height * row_counter);
-            rowRef.current.top = top + "px";
-        }
-
     }
     //submit the typing test
     const SubmitTest = async () => {
         try {
             let userID = localStorage.getItem("userID");
             const testID = localStorage.getItem("testID");
-            const wordsPerMinute = (correctWordArray.filter(Boolean).length)
+            const wordsPerMinute = (correctWordArrayStatic.filter(Boolean).length)
 
-            const trues = correctWordArray.filter(c => c === true)
-            const accuracy = (trues.length * 100) / (trues.length + (correctWordArray.length - trues.length))
+            const trues = correctWordArrayStatic.filter(c => c === true)
+            const accuracy = (trues.length * 100) / (trues.length + (correctWordArrayStatic.length - trues.length))
             const res = await axios.post(`${process.env.REACT_APP_SERVER}/user/submitTypingTest`,
                 { testID, userID, wpm: wordsPerMinute, accuracy: accuracy.toFixed(2) });
 
+            // const res = await axios.post(`${process.env.REACT_APP_SERVER}/user/submitTypingTest`,
+            //     { testID, userID, wpm: correctWordArrayStatic.filter(Boolean).length, accuracy: 21 });
             const type = res.data.testType ?? typeOfTest.Typing;
             if (type === typeOfTest.Typing_MCQs) { //Typing + Mcq
                 navigate('/WaitingComponent', { replace: true, state: { type } });
+                // setTimeout(() => {
+                //     navigate(routeTypeTest.MCQs, { replace: true, state: { userID } });
+                // }, 5000)
                 return;
             }
 
@@ -179,28 +159,18 @@ const FingerFast = () => {
         SubmitTest();
     }
 
+
     return (
         <Stack sx={{
             backgroundColor: '#add5ff',
+            //background: 'url(https://img.10fastfingers.com/img/layout/sprite-horizontal.png) 0px -200px repeat-x #add5ff;',
             height: "100vh", paddingTop: "5rem", width: "100vw"
         }}>
             <Container>
                 <h2>Speed Typing Test</h2>
-
-                <div className="para" style={{
-                    outline: "1.4px solid #8eb6d8",
-                    borderRadius: "9px",
-                    height: "9rem", overflow: 'hidden'
-                }}>
-                    <div ref={rowRef} id={'row-1'} style={{ position: 'relative', top: rowRef.current?.top ?? '-1px' }}>
-                        {
-                            wordsA
-                        }
-                    </div>
-                </div>
-
-
-
+                <p className="para" style={{ border: "1px solid #8eb6d8", borderRadius: "9px", }}>{cloud.current.map((word, index) => {
+                    return <Word key={index} text={word} active={index === activeWordIndex} correct={correctWordArray[index]} />
+                })}</p>
                 <Stack sx={{
                     display: 'flex', flexDirection: 'row',
                     alignItems: 'center', justifyContent: 'center',
@@ -209,6 +179,7 @@ const FingerFast = () => {
                 }}>
                     <TextField inputRef={inputRef} type='text' disabled={timeup}
                         onChange={(e) => processInput(e.target.value)}
+
                         inputProps={{
                             style: {
                                 boxShadow: "#6d6161  5px 5px  3px -2px inset",
@@ -222,8 +193,11 @@ const FingerFast = () => {
                             "& .MuiOutlinedInput-root": {
                                 backgroundColor: "white"
                             },
+
                         }} />
+
                     <Timer startCounting={startCounting} setTimeUp={setTimeUpFun} />
+
                 </Stack>
             </Container>
         </Stack>

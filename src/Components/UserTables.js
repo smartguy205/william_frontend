@@ -28,9 +28,11 @@ const UserTable = ({ filterData }) => {
     const [filter, setFilter] = useState({
         country: '',
         position: '',
+        testType: '',
     });
     const [countries, setCountries] = useState([]);
     const [positions, setPositions] = useState([]);
+    const [testTypes, setTestTypes] = useState([]);
 
     const [arrowState, setArrowState] = useState({
         testType: 'asc',
@@ -69,11 +71,17 @@ const UserTable = ({ filterData }) => {
                         return user.position
                     }).filter(position => position !== "");
 
+                    const allTestTypes = res.data.user.map(user => {
+                        return user.testType
+                    }).filter(testType => testType !== "");
+
                     let allC = [...new Set(allCountries)]
                     let allP = [...new Set(allPositions)]
+                    let allT = [...new Set(allTestTypes)]
 
                     setCountries(allC);
                     setPositions(allP);
+                    setTestTypes(allT);
                 }
             }
             else {
@@ -165,10 +173,23 @@ const UserTable = ({ filterData }) => {
             filteredCountryData = filteredCountryData.filter((item) => {
                 return item.position === filter.position;
             });
+            // console.log('position', filter.position, duplicateData);
         }
+
+        // testType
+
+
+        if (filter.testType !== "") {
+            filteredCountryData = filteredCountryData.filter((item) => {
+                // console.log('test-type', item.testType, filter.testType);
+                return item?.testType ? item.testType.toString() === filter.testType : item;
+            });
+        }
+
         if (filter.country !== "") {
             filteredCountryData = filteredCountryData.filter((item) => item.country === filter.country);
-            console.log(filteredCountryData)
+            // console.log(filteredCountryData)
+            // console.log('Country', filter.country, duplicateData);
         }
         setData(filteredCountryData);
     }, [filter]);
@@ -214,7 +235,7 @@ const UserTable = ({ filterData }) => {
                     </select>
                 </div>
 
-                <div>
+                <div className="mb-4">
                     <select name="position" onChange={Filter}>
                         <option value="">Select Position</option>
                         {positions.map((item, index) =>
@@ -222,6 +243,17 @@ const UserTable = ({ filterData }) => {
                         )}
                     </select>
                 </div>
+
+                <div className="mb-4">
+                    <select name="testType" onChange={Filter}>
+                        <option value="">Select Test-Type</option>
+                        {testTypes.map((item, index) =>
+                            <option value={item} key={index} >{testTypeValue[item]}</option>
+                        )}
+                    </select>
+                </div>
+
+
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
