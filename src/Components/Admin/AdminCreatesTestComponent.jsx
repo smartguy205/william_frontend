@@ -155,7 +155,7 @@ const AdminCreatesTest = () => {
                                 label="Position"
                                 sx={{ width: '10rem' }}
                                 inputRef={positionRef}
-                                defaultValue={positionRef?.current?.value ?? ""}
+                                //value={positionOptions?.[0]}
                                 onChange={(e) => handlePositionChange(e.target.value)}
                             >
                                 {positionOptions?.map(position =>
