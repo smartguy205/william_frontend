@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-export async function addJobs({ Countries, positionOptions, testType, language }) {
+export async function addJobs({ Countries, positionOptions, testType }) {
     // console.log(Countries)
     const data = Countries.map(c => ({
-        country: c.Country, position: positionOptions, test_type: testType, language
+        country: c.Country, position: positionOptions, test_type: testType
     }))
 
     const res = await axios.post(`${process.env.REACT_APP_SERVER}/admin/jobs`, { data }, {
