@@ -59,6 +59,7 @@ const FinalScreen = () => {
     //         document.removeEventListener('visibilitychange', focusFUnction);
     //     }
     // }, []);
+    const language = localStorage.getItem("language") ?? "uk";
 
     const getQuestions = async () => {
         try {
@@ -136,7 +137,7 @@ const FinalScreen = () => {
                 //     navigate(routeTypeTest.Typing, { replace: true, state: { userID } });
                 //     // navigate("/typing-test", { replace: true, state: { userID } });
                 // }, 5000)
-                
+
                 return;
             }
             else
@@ -167,8 +168,10 @@ const FinalScreen = () => {
                             </Card>
 
                             <Card sx={{ flex: 0.8, boxShadow: 'none' }}>
-                                {data[index].Images.map((img, key) => <img
-                                    src={"https://luke-pdf-image.s3.ap-south-1.amazonaws.com/" + img} key={key} className="img-fluid" />)}
+                                {data[index]?.Images?.map((img, key) => <img
+                                    // src={"https://luke-pdf-image.s3.ap-south-1.amazonaws.com/" + img} 
+                                    src={"https://luke-images-bucket.s3.amazonaws.com/" + language + "/" + img}
+                                    key={key} className="img-fluid" />)}
                             </Card>
                         </Stack>
 
