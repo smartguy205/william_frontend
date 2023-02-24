@@ -19,3 +19,8 @@ th {
 td {
   text-align: center;
 }
+
+.dropdown{
+  display: flex;
+  flex-direction: row;
+}

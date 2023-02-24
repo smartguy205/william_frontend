@@ -5,12 +5,18 @@ import { CSVLink } from 'react-csv';
 import React, { useContext, useEffect, useState } from "react";
 import moment from 'moment';
 import { NavLink, useNavigate } from "react-router-dom";
+// import { DateRangePicker } from 'react-date-range';
+import { DateRange } from 'react-date-range';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { AuthContext } from "../contexts/auth";
 import "./UserTable.css";
 import * as Sentry from '@sentry/react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Button } from "@mui/material";
+import { Button, Input, Stack } from "@mui/material";
+import 'react-date-range/dist/styles.css'; // main style file
+import 'react-date-range/dist/theme/default.css'; // theme css file
+
 
 const UserTable = ({ filterData }) => {
     //const { logged, setLogged, UpdateAuth } = useContext(AuthContext);
@@ -21,18 +27,25 @@ const UserTable = ({ filterData }) => {
     const [order, setOrder] = useState("ASC");
     const [duplicateData, setduplicateData] = useState([]);
     const [errMsg, setErrMsg] = useState("Loading Tests");
+    const [showCalendar, setShowCalendar] = useState(false)
 
     // const [feedback, setFeedback] = useState(null);
-
 
     const [filter, setFilter] = useState({
         country: '',
         position: '',
         testType: '',
+        rangeDate: {
+            startDate: new Date(),
+            endDate: new Date(),
+            // key: 'selection'
+            isFilter: false
+        },
     });
     const [countries, setCountries] = useState([]);
     const [positions, setPositions] = useState([]);
     const [testTypes, setTestTypes] = useState([]);
+
 
     const [arrowState, setArrowState] = useState({
         testType: 'asc',
@@ -74,6 +87,7 @@ const UserTable = ({ filterData }) => {
                     const allTestTypes = res.data.user.map(user => {
                         return user.testType
                     }).filter(testType => testType !== "");
+
 
                     let allC = [...new Set(allCountries)]
                     let allP = [...new Set(allPositions)]
@@ -167,8 +181,19 @@ const UserTable = ({ filterData }) => {
     // }, [filter]);
 
 
+    // getting Full Date (dd/mm/yyyy)
+    const getFullDate = (createdAt) => {
+        const currentDate = createdAt;
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+        const day = String(currentDate.getDate()).padStart(2, "0");
+        const fullDate = `${year}-${month} -${day}`;
+        return fullDate;
+    }
+
     useEffect(() => {
         let filteredCountryData = duplicateData;
+        // position filter
         if (filter.position !== "") {
             filteredCountryData = filteredCountryData.filter((item) => {
                 return item.position === filter.position;
@@ -176,9 +201,7 @@ const UserTable = ({ filterData }) => {
             // console.log('position', filter.position, duplicateData);
         }
 
-        // testType
-
-
+        // testType filter
         if (filter.testType !== "") {
             filteredCountryData = filteredCountryData.filter((item) => {
                 // console.log('test-type', item.testType, filter.testType);
@@ -186,6 +209,22 @@ const UserTable = ({ filterData }) => {
             });
         }
 
+
+        if (filter.rangeDate.isFilter) {
+            let startD = filter.rangeDate.startDate.toISOString();
+            let endD = filter.rangeDate.endDate.toISOString();
+            let arr = [];
+            filteredCountryData.map(filtered => {
+                if ((startD <= filtered.createdAt && endD >= filtered.createdAt) || getFullDate(new Date(endD)) == getFullDate(new Date(filtered.createdAt))) {
+                    arr.push(filtered);
+                }
+            })
+            filteredCountryData = arr;
+            // filteredCountryData = filteredCountryData.filter(i => !.includes(i.id))
+            // console.log('filter work', filter);
+        }
+
+        // country filter
         if (filter.country !== "") {
             filteredCountryData = filteredCountryData.filter((item) => item.country === filter.country);
             // console.log(filteredCountryData)
@@ -222,10 +261,38 @@ const UserTable = ({ filterData }) => {
         4: "Typing Test + MCQ's",
     }
 
+    const handleSelect = (date) => {
+        // console.log('Select Range', date);
+        setFilter({
+            ...filter,
+            rangeDate: {
+                startDate: date.selection.startDate,
+                endDate: date.selection.endDate,
+                isFilter: true
+            },
+
+        });
+    }
+
+    const clearDateFilter = () => {
+        setFilter({
+            ...filter,
+            rangeDate: {
+                startDate: new Date(),
+                endDate: new Date(),
+                isFilter: false
+            }
+        })
+        // console.log('Filter vala clear', filter);
+    }
+
+    const hideAndShow = () => {
+        setShowCalendar(!showCalendar);
+    };
 
     return (
         <div className="userTable mt-5">
-            <div className="row">
+            <div className="dropdown">
                 <div className="mb-4">
                     <select name="country" onChange={Filter}>
                         <option value="">Select Country</option>
@@ -235,25 +302,48 @@ const UserTable = ({ filterData }) => {
                     </select>
                 </div>
 
-                <div className="mb-4">
+                <div className="mb-4" style={{ marginLeft: '10px' }}>
                     <select name="position" onChange={Filter}>
                         <option value="">Select Position</option>
                         {positions.map((item, index) =>
-                            <option value={item} key={index} >{item}</option>
+                            <option value={item} key={index}>{item}</option>
                         )}
                     </select>
                 </div>
 
-                <div className="mb-4">
-                    <select name="testType" onChange={Filter}>
-                        <option value="">Select Test-Type</option>
-                        {testTypes.map((item, index) =>
-                            <option value={item} key={index} >{testTypeValue[item]}</option>
-                        )}
-                    </select>
+                <div className="mb-4" style={{ marginLeft: '10px' }}>
+                    <div>
+                        <select name="testType" onChange={Filter}>
+                            <option value="">Select Test-Type</option>
+                            {testTypes.map((item, index) =>
+                                <option value={item} key={index} >{testTypeValue[item]}</option>
+                            )}
+                        </select>
+                    </div>
                 </div>
 
-
+                <div onClick={hideAndShow} className="mb-4" style={{ marginLeft: '10px' }}>
+                    <div>
+                        <CalendarMonthIcon />
+                        <Input placeholder="Select Date" readOnly
+                            style={{ height: '24px', width: '139px' }}
+                        />
+                    </div>
+                    {
+                        showCalendar ?
+                            <Stack>
+                                <DateRange
+                                    onChange={handleSelect}
+                                    ranges={[{
+                                        startDate: filter.rangeDate.startDate,
+                                        endDate: filter.rangeDate.endDate,
+                                        key: 'selection'
+                                    }]}
+                                />
+                                <Button variant="outlined" onClick={clearDateFilter}>Clear Date</Button>
+                            </Stack> : ""
+                    }
+                </div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
