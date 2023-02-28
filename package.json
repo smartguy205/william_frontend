@@ -26,6 +26,7 @@
         "react-cookie": "^4.1.1",
         "react-countdown-circle-timer": "^3.0.9",
         "react-csv": "^2.2.2",
+        "react-date-range": "^1.4.0",
         "react-dom": "^18.2.0",
         "react-router": "^6.4.2",
         "react-scripts": "^5.0.1",
@@ -34,7 +35,7 @@
     },
     "scripts": {
         "start": "react-scripts start",
-        "build": " npm i react-date-range react-router-dom && react-scripts build",
+        "build": " npm i react-date-range --save && react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject"
     },
