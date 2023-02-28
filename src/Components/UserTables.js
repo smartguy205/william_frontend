@@ -73,7 +73,7 @@ const UserTable = ({ filterData }) => {
                 setData(res.data.user)
                 setduplicateData(res.data.user)
 
-                console.log(res.data.user);
+                // console.log(res.data.user);
 
                 if (res.data.user.length > 0) {
                     const allCountries = res.data.user.map(user => {
@@ -136,7 +136,7 @@ const UserTable = ({ filterData }) => {
             const sorted = [...data].sort((a, b) => {
                 //   a[col]?.toString().toLowerCase() < b[col]?.toString().toLowerCase() ? 1 : -1
                 // );
-                console.log(typeof a[col]);
+                // console.log(typeof a[col]);
                 return typeof a[col] === 'number' ? b[col] - a[col] : a[col].toString().toLowerCase() < b[col].toString().toLowerCase() ? 1 : -1
             });
 
@@ -322,11 +322,15 @@ const UserTable = ({ filterData }) => {
                     </div>
                 </div>
 
-                <div onClick={hideAndShow} className="mb-4" style={{ marginLeft: '10px' }}>
+                <div className="mb-4" style={{ marginLeft: '10px' }}>
                     <div>
                         <CalendarMonthIcon />
-                        <Input placeholder="Select Date" readOnly
-                            style={{ height: '24px', width: '139px' }}
+                        <Input onClick={hideAndShow}
+
+                            value={`${filter.rangeDate.startDate.toLocaleDateString("en-GB") - filter.rangeDate.endDate.toLocaleDateString("en-GB")}`}
+                            //placeholder="Select Date" 
+                            readOnly
+                            style={{ height: '24px', width: '200px' }}
                         />
                     </div>
                     {
