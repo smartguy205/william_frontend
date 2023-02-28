@@ -327,7 +327,7 @@ const UserTable = ({ filterData }) => {
                         <CalendarMonthIcon />
                         <Input onClick={hideAndShow}
 
-                            value={`${filter.rangeDate.startDate.toLocaleDateString("en-GB") - filter.rangeDate.endDate.toLocaleDateString("en-GB")}`}
+                            value={`${filter.rangeDate.startDate.toLocaleDateString("en-GB")}` + " - " + `${filter.rangeDate.endDate.toLocaleDateString("en-GB")}`}
                             //placeholder="Select Date" 
                             readOnly
                             style={{ height: '24px', width: '200px' }}
