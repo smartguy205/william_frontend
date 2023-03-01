@@ -9,14 +9,20 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { DateRange } from 'react-date-range';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { AuthContext } from "../contexts/auth";
+import Slider from '@mui/material/Slider';
 import "./UserTable.css";
 import * as Sentry from '@sentry/react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Button, Input, Stack } from "@mui/material";
+import { Button, Input, Stack, Typography, } from "@mui/material";
+// import { Button } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close';
+import Modal from '@mui/material/Modal'
 import 'react-date-range/dist/styles.css'; // main style file
 import 'react-date-range/dist/theme/default.css'; // theme css file
-
+import { create } from "@mui/material/styles/createTransitions";
+import { set } from "date-fns";
+import { display } from "@mui/system";
 
 const UserTable = ({ filterData }) => {
     //const { logged, setLogged, UpdateAuth } = useContext(AuthContext);
@@ -27,7 +33,10 @@ const UserTable = ({ filterData }) => {
     const [order, setOrder] = useState("ASC");
     const [duplicateData, setduplicateData] = useState([]);
     const [errMsg, setErrMsg] = useState("Loading Tests");
-    const [showCalendar, setShowCalendar] = useState(false)
+    // const [showCalendar, setShowCalendar] = useState(false);
+    const [open, setOpen] = React.useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
 
     // const [feedback, setFeedback] = useState(null);
 
@@ -38,9 +47,12 @@ const UserTable = ({ filterData }) => {
         rangeDate: {
             startDate: new Date(),
             endDate: new Date(),
-            // key: 'selection'
             isFilter: false
         },
+        mcqScore: {
+            scores: [0, 50],
+            isFilter: false
+        }
     });
     const [countries, setCountries] = useState([]);
     const [positions, setPositions] = useState([]);
@@ -73,7 +85,7 @@ const UserTable = ({ filterData }) => {
                 setData(res.data.user)
                 setduplicateData(res.data.user)
 
-                // console.log(res.data.user);
+                //console.log(res.data.user);
 
                 if (res.data.user.length > 0) {
                     const allCountries = res.data.user.map(user => {
@@ -136,7 +148,7 @@ const UserTable = ({ filterData }) => {
             const sorted = [...data].sort((a, b) => {
                 //   a[col]?.toString().toLowerCase() < b[col]?.toString().toLowerCase() ? 1 : -1
                 // );
-                // console.log(typeof a[col]);
+                //console.log(typeof a[col]);
                 return typeof a[col] === 'number' ? b[col] - a[col] : a[col].toString().toLowerCase() < b[col].toString().toLowerCase() ? 1 : -1
             });
 
@@ -191,8 +203,9 @@ const UserTable = ({ filterData }) => {
         return fullDate;
     }
 
-    useEffect(() => {
+    const filterAll = () => {
         let filteredCountryData = duplicateData;
+
         // position filter
         if (filter.position !== "") {
             filteredCountryData = filteredCountryData.filter((item) => {
@@ -209,7 +222,7 @@ const UserTable = ({ filterData }) => {
             });
         }
 
-
+        // date filter
         if (filter.rangeDate.isFilter) {
             let startD = filter.rangeDate.startDate.toISOString();
             let endD = filter.rangeDate.endDate.toISOString();
@@ -224,6 +237,14 @@ const UserTable = ({ filterData }) => {
             // console.log('filter work', filter);
         }
 
+        // MCQ Score Filter
+        if (filter.mcqScore.isFilter) {
+            filteredCountryData = filteredCountryData.filter(filtered => {
+                return filtered.score >= filter.mcqScore.scores[0] && filtered.score <= filter.mcqScore.scores[1]
+            });
+            // console.log("FDM", filteredCountryData);
+        }
+
         // country filter
         if (filter.country !== "") {
             filteredCountryData = filteredCountryData.filter((item) => item.country === filter.country);
@@ -231,8 +252,8 @@ const UserTable = ({ filterData }) => {
             // console.log('Country', filter.country, duplicateData);
         }
         setData(filteredCountryData);
-    }, [filter]);
-
+        handleClose();
+    };
 
     // Search
     useEffect(() => {
@@ -285,80 +306,174 @@ const UserTable = ({ filterData }) => {
         })
         // console.log('Filter vala clear', filter);
     }
+    // const testElement = document.getElementsByClassName('css-nen11g-MuiStack-root')
 
-    const hideAndShow = () => {
-        setShowCalendar(!showCalendar);
-    };
+    // const hideAndShow = (event) => {
+    //     event.stopPropagation()
+    //     // console.log(testElement[0])
+    //     // testElement[0]?.addEventListener("blur", () => console.log("hslj"))
+    //     setShowCalendar(!showCalendar);
+    // };
+
+    const scoreChange = (event, marks, activeThumb) => {
+        // console.log('marks', filter.mcqScore.scores, filter.mcqScore.isFilter)
+        // console.log('activeThumb', activeThumb)
+        if (!Array.isArray(marks)) {
+            return;
+        }
+
+        setFilter({
+            ...filter,
+            mcqScore: {
+                scores: scoreToSet(activeThumb, marks, filter.mcqScore.scores),
+                isFilter: true
+            }
+        })
+    }
+
+    // Set marks on slider
+    const scoreToSet = (activeThumb, marks, prevScore) => {
+        if (activeThumb === 0) {
+            return [(Math.min(marks[0], prevScore[1] - 1)), prevScore[1]];
+        } else {
+            return [prevScore[0], Math.max(marks[1], prevScore[0] + 1)];
+        }
+    }
+
+    // Clear All Applied Filters
+    const clearAllFilters = () => {
+        setFilter({
+            country: '',
+            position: '',
+            testType: '',
+            rangeDate: {
+                startDate: new Date(),
+                endDate: new Date(),
+                isFilter: false
+            },
+            mcqScore: {
+                isFilter: false,
+                scores: [0, 50]
+            }
+        });
+        getTestDetails();
+        handleClose();
+    }
 
     return (
         <div className="userTable mt-5">
-            <div className="dropdown">
-                <div className="mb-4">
-                    <select name="country" onChange={Filter}>
-                        <option value="">Select Country</option>
-                        {countries.map((item, index) =>
-                            <option value={item} key={index} >{item}</option>
-                        )}
-                    </select>
-                </div>
 
-                <div className="mb-4" style={{ marginLeft: '10px' }}>
-                    <select name="position" onChange={Filter}>
-                        <option value="">Select Position</option>
-                        {positions.map((item, index) =>
-                            <option value={item} key={index}>{item}</option>
-                        )}
-                    </select>
-                </div>
-
-                <div className="mb-4" style={{ marginLeft: '10px' }}>
-                    <div>
-                        <select name="testType" onChange={Filter}>
-                            <option value="">Select Test-Type</option>
-                            {testTypes.map((item, index) =>
-                                <option value={item} key={index} >{testTypeValue[item]}</option>
-                            )}
-                        </select>
-                    </div>
-                </div>
-
-                <div className="mb-4" style={{ marginLeft: '10px' }}>
-                    <div>
-                        <CalendarMonthIcon />
-                        <Input onClick={hideAndShow}
-
-                            value={`${filter.rangeDate.startDate.toLocaleDateString("en-GB")}` + " - " + `${filter.rangeDate.endDate.toLocaleDateString("en-GB")}`}
-                            //placeholder="Select Date" 
-                            readOnly
-                            style={{ height: '24px', width: '200px' }}
-                        />
-                    </div>
-                    {
-                        showCalendar ?
-                            <Stack>
-                                <DateRange
-                                    onChange={handleSelect}
-                                    ranges={[{
-                                        startDate: filter.rangeDate.startDate,
-                                        endDate: filter.rangeDate.endDate,
-                                        key: 'selection'
-                                    }]}
-                                />
-                                <Button variant="outlined" onClick={clearDateFilter}>Clear Date</Button>
-                            </Stack> : ""
-                    }
-                </div>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly' }}>
                 {
                     data.length > 0 &&
                     <div className="my-3">
                         <CSVLink data={CSVData}> <button className="btn btn-dark">Download CSV File </button></CSVLink>
                     </div>
                 }
-            </div>
+                <div className="my-3" >
+                    <Button variant="contained" onClick={handleOpen}>FILTER</Button>
+                    <Modal
+                        open={open}
+                        onClose={handleClose}
+                        aria-labelledby="modal-modal-title"
+                        aria-describedby="modal-modal-description"
+                    >
 
+                        <div className="dropdown">
+                            <div onClick={handleClose} style={{ display: 'flex', flexDirection: 'row', justifyItem: 'end', width: '100%', justifyContent: 'flex-end', marginRight: '50px', cursor: 'pointer' }}>
+                                <CloseIcon />
+                            </div>
+                            <div style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                gap: '20px'
+                            }}>
+                                <div className="mb-4">
+                                    <select name="country" onChange={Filter} value={filter.country ?? undefined}>
+                                        <option value="">Select Country</option>
+                                        {countries.map((item, index) =>
+                                            <option value={item} key={index} >{item}</option>
+                                        )}
+                                    </select>
+                                </div>
+
+                                <div className="mb-4">
+                                    <select name="position" onChange={Filter} value={filter.position ?? undefined}>
+                                        <option value="">Select Position</option>
+                                        {positions.map((item, index) =>
+                                            <option value={item} key={index} >{item}</option>
+                                        )}
+                                    </select>
+                                </div>
+
+                                <div className="mb-4">
+                                    <div>
+                                        <select name="testType" onChange={Filter} value={filter.testType ?? undefined}>
+                                            <option value="">Select Test-Type</option>
+                                            {testTypes.map((item, index) => {
+                                                // if (index + 1 == filter.testType) {
+                                                return <option value={item} key={index} >{testTypeValue[item]}</option>
+                                                /* } else {
+                                                     return <option value={item} key={index}>{testTypeValue[item]}</option>
+                                                 }*/
+                                            }
+                                            )}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mb-4">
+                                <div >
+                                    <CalendarMonthIcon />
+                                    <Input
+                                        // onClick={hideAndShow}
+                                        value={`${filter.rangeDate.startDate.toLocaleDateString("en-GB")}` + " - " + `${filter.rangeDate.endDate.toLocaleDateString("en-GB")}`} style={{ height: '24px', width: '200px' }} />
+                                </div>
+
+                                {/* showCalendar ? */}
+                                <Stack>
+                                    <DateRange
+                                        onChange={handleSelect}
+                                        ranges={[{
+                                            startDate: filter.rangeDate.startDate,
+                                            endDate: filter.rangeDate.endDate,
+                                            key: 'selection'
+                                        }]}
+                                    />
+                                    <Button variant="outlined" onClick={clearDateFilter}>Clear Date</Button>
+                                </Stack>
+
+                            </div>
+
+                            <div className="mb-4" style={{ marginTop: '20px', width: '500px' }}>
+                                <Slider
+                                    size='medium'
+                                    aria-labelledby="input-slider"
+                                    value={filter.mcqScore.scores}
+                                    min={0}
+                                    max={50}
+                                    onChange={scoreChange}
+                                    valueLabelDisplay="on"
+                                    disableSwap
+                                />
+                                <Typography id='input-slider' gutterBottom>Slide to get Marks</Typography>
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: '50px' }}>
+
+                                <div className="my-3">
+                                    <Button variant="contained" onClick={filterAll}>Apply</Button>
+                                </div>
+
+                                <div className="my-3">
+                                    <Button variant="outlined" onClick={clearAllFilters} >Clear</Button>
+                                </div>
+                            </div>
+                        </div>
+                    </Modal>
+                </div>
+            </div>
 
             {
                 data.length > 0 ?
@@ -433,7 +548,7 @@ const UserTable = ({ filterData }) => {
                     :
                     <h1>{errMsg}</h1>
             }
-            <ToastContainer />
+            < ToastContainer />
         </div>
     );
 };
