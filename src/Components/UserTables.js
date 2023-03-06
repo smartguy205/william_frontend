@@ -32,9 +32,9 @@ const UserTable = ({ filterData }) => {
     const [data, setData] = useState([]);
     const [order, setOrder] = useState("ASC");
     const [duplicateData, setduplicateData] = useState([]);
-    const [errMsg, setErrMsg] = useState("Loading Tests");
+    const [errMsg, setErrMsg] = useState("Loading Records...");
     // const [showCalendar, setShowCalendar] = useState(false);
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
@@ -51,6 +51,10 @@ const UserTable = ({ filterData }) => {
         },
         mcqScore: {
             scores: [0, 50],
+            isFilter: false
+        },
+        typingScore: {
+            tScores: [0, 300],
             isFilter: false
         }
     });
@@ -245,6 +249,17 @@ const UserTable = ({ filterData }) => {
             // console.log("FDM", filteredCountryData);
         }
 
+        // Typing Score
+        if (filter.typingScore.isFilter) {
+            filteredCountryData = filteredCountryData.filter(filtered => {
+                // console.log('filtered', filtered);
+                if (filtered?.typingTest?.wpm) {
+                    return filtered.typingTest.wpm >= filter.typingScore.tScores[0] && filtered.typingTest.wpm <= filter.typingScore.tScores[1]
+                }
+                // return filtered.wpm >= filter.typingScore.tScores[0] && filtered.wpm <= filter.typingScore.tScores[1]
+            });
+        }
+
         // country filter
         if (filter.country !== "") {
             filteredCountryData = filteredCountryData.filter((item) => item.country === filter.country);
@@ -331,7 +346,25 @@ const UserTable = ({ filterData }) => {
         })
     }
 
-    // Set marks on slider
+    const scoreTyping = (event, typingMarks, activeThumb) => {
+        // console.log('marks', filter.mcqScore.scores, filter.mcqScore.isFilter)
+        // console.log('activeThumb', activeThumb)
+        if (!Array.isArray(typingMarks)) {
+            return;
+        }
+
+        setFilter({
+            ...filter,
+            typingScore: {
+                tScores: scoreToSet(activeThumb, typingMarks, filter.typingScore.tScores),
+                isFilter: true
+            }
+        })
+        console.log('typingMarks', filter.typingScore.tScores)
+    }
+
+
+    // Set marks on slider(for mcq)
     const scoreToSet = (activeThumb, marks, prevScore) => {
         if (activeThumb === 0) {
             return [(Math.min(marks[0], prevScore[1] - 1)), prevScore[1]];
@@ -339,6 +372,16 @@ const UserTable = ({ filterData }) => {
             return [prevScore[0], Math.max(marks[1], prevScore[0] + 1)];
         }
     }
+
+    // Set  marks on Slider for typing
+    // const typingScoreToSet = (activeThumb, marks, prevScore) => {
+    //     if (activeThumb === 0) {
+    //         return [(Math.min(marks[0], prevScore[1] - 1)), prevScore[1]];
+    //     } else {
+    //         return [prevScore[0], Math.max(marks[1], prevScore[0] + 1)];
+    //     }
+    // }
+
 
     // Clear All Applied Filters
     const clearAllFilters = () => {
@@ -354,7 +397,12 @@ const UserTable = ({ filterData }) => {
             mcqScore: {
                 isFilter: false,
                 scores: [0, 50]
+            },
+            typingScore: {
+                tScores: [0, 300],
+                isFilter: false
             }
+
         });
         getTestDetails();
         handleClose();
@@ -370,7 +418,7 @@ const UserTable = ({ filterData }) => {
                         <CSVLink data={CSVData}> <button className="btn btn-dark">Download CSV File </button></CSVLink>
                     </div>
                 }
-                <div className="my-3" >
+                <div className="my-3">
                     <Button variant="contained" onClick={handleOpen}>FILTER</Button>
                     <Modal
                         open={open}
@@ -389,7 +437,7 @@ const UserTable = ({ filterData }) => {
                                 gap: '20px'
                             }}>
                                 <div className="mb-4">
-                                    <select name="country" onChange={Filter} value={filter.country ?? undefined}>
+                                    <select value={filter.country ?? undefined} name="country" onChange={Filter}>
                                         <option value="">Select Country</option>
                                         {countries.map((item, index) =>
                                             <option value={item} key={index} >{item}</option>
@@ -398,24 +446,20 @@ const UserTable = ({ filterData }) => {
                                 </div>
 
                                 <div className="mb-4">
-                                    <select name="position" onChange={Filter} value={filter.position ?? undefined}>
+                                    <select value={filter.position ?? undefined} name="position" onChange={Filter}>
                                         <option value="">Select Position</option>
                                         {positions.map((item, index) =>
-                                            <option value={item} key={index} >{item}</option>
+                                            <option value={item} key={index}>{item}</option>
                                         )}
                                     </select>
                                 </div>
 
                                 <div className="mb-4">
                                     <div>
-                                        <select name="testType" onChange={Filter} value={filter.testType ?? undefined}>
+                                        <select value={filter.testType ?? undefined} name="testType" onChange={Filter}>
                                             <option value="">Select Test-Type</option>
                                             {testTypes.map((item, index) => {
-                                                // if (index + 1 == filter.testType) {
-                                                return <option value={item} key={index} >{testTypeValue[item]}</option>
-                                                /* } else {
-                                                     return <option value={item} key={index}>{testTypeValue[item]}</option>
-                                                 }*/
+                                                return <option value={item} key={index}>{testTypeValue[item]}</option>
                                             }
                                             )}
                                         </select>
@@ -424,7 +468,7 @@ const UserTable = ({ filterData }) => {
                             </div>
 
                             <div className="mb-4">
-                                <div >
+                                <div>
                                     <CalendarMonthIcon />
                                     <Input
                                         // onClick={hideAndShow}
@@ -446,21 +490,36 @@ const UserTable = ({ filterData }) => {
 
                             </div>
 
-                            <div className="mb-4" style={{ marginTop: '20px', width: '500px' }}>
+                            {filter.testType !== '2' ?
+                                < div className="mb-4" style={{ marginTop: '10px', width: '500px' }}>
+                                    <Slider
+                                        size='medium'
+                                        aria-labelledby="input-slider"
+                                        value={filter.mcqScore.scores}
+                                        min={0}
+                                        max={50}
+                                        onChange={scoreChange}
+                                        valueLabelDisplay="on"
+                                        disableSwap
+                                    />
+                                    <Typography id='input-slider' gutterBottom>Slide to get MCQ Score</Typography>
+                                </div> : ''}
+
+                            {filter?.testType !== '1' ? <div className="mb-4" style={{ marginTop: '10px', width: '500px' }}>
                                 <Slider
                                     size='medium'
                                     aria-labelledby="input-slider"
-                                    value={filter.mcqScore.scores}
+                                    value={filter.typingScore.tScores}
                                     min={0}
-                                    max={50}
-                                    onChange={scoreChange}
+                                    max={300}
+                                    onChange={scoreTyping}
                                     valueLabelDisplay="on"
                                     disableSwap
                                 />
-                                <Typography id='input-slider' gutterBottom>Slide to get Marks</Typography>
-                            </div>
+                                <Typography id='input-slider' gutterBottom>Slide to get Typing Score</Typography>
+                            </div> : ''}
 
-                            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: '50px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', gap: '50px', marginTop: '-40px' }}>
 
                                 <div className="my-3">
                                     <Button variant="contained" onClick={filterAll}>Apply</Button>
