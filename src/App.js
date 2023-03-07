@@ -1,20 +1,19 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./App.css";
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import * as Sentry from '@sentry/react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Buffer } from 'buffer';
 import CircularProgress from '@mui/material/CircularProgress';
-
 function App() {
     const navigate = useNavigate();
     const [selectedFile, setSelectedFile] = useState();
     const [selectedFileData, setSelectedFileData] = useState(null);
     const [mount, setMount] = useState(false);
     const [loading, setLoading] = useState(false);
-
+    const [showFullText, setShowFullText] = useState(false);
     const [positions, setPositons] = useState([]);
 
     const [data, setData] = useState({
@@ -65,6 +64,9 @@ function App() {
         }
     }, [mount]);
 
+    function handleReadMoreClick() {
+        setShowFullText(true);
+    }
 
     // file
     const changeHandler = async (event) => {
@@ -200,7 +202,7 @@ function App() {
 
     return (
         <div className="App  container-fluid">
-            <h2>Marketing Management</h2>
+            <h2>Be Positive IT</h2>
             <div className="box row col-sm-12 col-md-8 col-lg-6">
                 <form
                     onSubmit={(e) => {
@@ -320,7 +322,48 @@ function App() {
                         )
                     }
                 </form>
-
+                <div>
+                    {showFullText ? (
+                        <p>DATA CONTROLLER
+                            The controller of your personal data is BE POSITIVE IT sp. z o.o. seated in Poznań at Młyńska 16, 8th floor, 61-730 Poznań,
+                            entered into the National Court Register of Entrepreneurs (KRS) under number 0001008984. HOW TO CONTACT US We have not
+                            appointed a data protection officer. In all cases related to personal data processing and exercising rights in connection with data
+                            processing, you can write to ul. Młyńska 16, 8 piętro, 61-730 Poznań, or send an email to luke@marketingmgmt.net. WHY WE
+                            PROCESS YOUR PERSONAL DATA We process personal data you reveal to us (e.g. in your CV) for the purpose of the recruitment
+                            process on a basis of Article 6(1) letter b of the GDPR*. Personal data collected during the interview or qualification tests are
+                            processed on a basis of our legitimate interest - that is to verify your skills and abilities - on a basis of Article 6(1) letter f of the
+                            GDPR. We process your personal data for the purpose of future recruitment processes or to verify information about your work
+                            experience and references from previous employers only if you give us your voluntary consent to do so - on a basis of Article 6(1)
+                            letter a of the GDPR. We can also process your personal data to determine and pursue possible claims or defend against such
+                            claims – which is our legitimate interest, on a basis of Article 6(1) letter f of the GDPR. WHO WILL HAVE ACCESS TO YOUR
+                            PERSONAL DATA We can provide your personal data to authorized entities under the provisions of law, recruitment platforms and
+                            to the entities providing services i.a. in the field of IT, human resources, audit, legal support, enforcement and accountancy that
+                            process personal data only on a basis of agreements and in accordance with our instructions. HOW LONG WE KEEP YOUR
+                            PERSONAL DATA Your personal data will be processed for the time of the recruitment process. After the recruitment, your personal
+                            data will be processed for the purpose of carrying out future recruitment processes - only on a basis of your voluntary consent - for
+                            one year counting from the end of the year in which the consent was granted. TRANSFER OF YOUR PERSONAL DATA TO THE
+                            USA We may transfer your data to the USA when recruiting through global recruitment platforms (such as Zoho Recruit). You should
+                            be informed that, in the absence of a decision by the European Commission on the adequacy of personal data protection, the USA
+                            is treated as a third country that does not provide an adequate level of protection for personal data. For this reason, we take
+                            technical and organisational steps to ensure an adequate level of security when transferring your personal data. The transfer of data
+                            is secured by means of standard contractual clauses, a copy of which you can obtain by contacting us by email. YOUR RIGHTS
+                            RELATED TO PERSONAL DATA PROCESSING You have the right to access your data personal, to demand rectification, erasure
+                            or restriction of the processing of personal data as well as the right to data portability. If personal data is processed on the basis of
+                            your consent, you have the right to withdraw it at any time. Withdrawal of consent does not affect the lawfulness of processing
+                            based on consent before its withdrawal. If the personal data are processed on the basis of our legitimate interest, you have the right
+                            to object to their processing due to your special situation. If you believe that your data is being processed in violation of the data
+                            protection law, you have the right to lodge a complaint with the supervisory body – Prezes Urzędu Ochrony Danych Osobowych
+                            (https://uodo.gov.pl/). OBLIGATION TO PROVIDE PERSONAL DATA The provision of personal data is voluntary but required to take
+                            part in the recruitment process. The provision of personal data processed on the basis of your consent is voluntary, lack of consent
+                            does not entail any negative consequences</p>
+                    ) : (
+                        <p>Be Positive IT is a data controller
+                            .</p>
+                    )}
+                    {!showFullText && (
+                        <Link style={{ color: 'grey' }} onClick={handleReadMoreClick}>Read More</Link>
+                    )}
+                </div>
             </div>
             <ToastContainer />
 
