@@ -65,7 +65,6 @@ const UserQuestionPaper = () => {
                             <Button>DOWNLOAD CV</Button>
                         </a></h6>}
                         <h6 className='col-12 col-md-6 col-lg-3'>Feedback: {user?.feedback}</h6>
-
                     </div>
                     {
                         data.map((paper, i) => {

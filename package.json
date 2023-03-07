@@ -2,6 +2,9 @@
     "name": "my-app",
     "version": "0.1.0",
     "private": true,
+    "engines": {
+        "node": "16.13.0"
+    },
     "dependencies": {
         "@emotion/react": "^11.10.5",
         "@emotion/styled": "^11.10.5",
@@ -23,6 +26,7 @@
         "react-cookie": "^4.1.1",
         "react-countdown-circle-timer": "^3.0.9",
         "react-csv": "^2.2.2",
+        "react-date-range": "^1.4.0",
         "react-dom": "^18.2.0",
         "react-router": "^6.4.2",
         "react-scripts": "^5.0.1",

@@ -12,6 +12,7 @@ import UserQuestionPaper from "./Components/UserQuestionPaper";
 import Login from "./Components/Admin/Login";
 import AdminCreatesTestComponent from "./Components/Admin/AdminCreatesTestComponent";
 import { Auth } from "./contexts/auth";
+import FingerFast from './Components/TypingTest/TypingTest/FingerFast';
 import FingerFast2 from './Components/TypingTest/TypingTest/FingerFast2';
 import WaitingComponent from "./Components/WaitingComponent";
 import AddPosition from "./Components/Admin/AddPosition";
