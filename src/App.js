@@ -202,7 +202,7 @@ function App() {
 
     return (
         <div className="App  container-fluid">
-            <h2>Be Positive IT</h2>
+            <h2>Be Positive IT sp. z o.o.</h2>
             <div className="box row col-sm-12 col-md-8 col-lg-6">
                 <form
                     onSubmit={(e) => {
@@ -360,7 +360,7 @@ function App() {
                         part in the recruitment process. The provision of personal data processed on the basis of your consent is voluntary, lack of consent
                         does not entail any negative consequences</p>
                 ) : (
-                    <p>Be Positive IT is a data controller
+                    <p>Be Positive IT sp.z o.o. is a data controller
                         .</p>
                 )}
                 {!showFullText && (
