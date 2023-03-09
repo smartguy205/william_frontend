@@ -42,9 +42,8 @@ const TestCompleted = () => {
                     position: 'top-center'
                 })
                 setTimeout(() => {
-                    navigate('/', { replace: true })
                     localStorage.clear();//delete it
-
+                    navigate('/', { replace: true })
                 }, 6500)
 
             } else {
