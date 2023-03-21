@@ -57,7 +57,7 @@ const UserQuestionPaper = () => {
                         <h6 className='col-12 col-md-6 col-lg-3'>Accuracy: {user?.accuracy}%</h6>
                         <h6 className='col-12 col-md-6 col-lg-3'>Date: {moment(user.updatedAt).format('MMMM Do YYYY, h:mm:ss a')}</h6>
                         <h6 className='col-12 col-md-6 col-lg-3'>Test-Type: {testTypeValue[user?.testType]}</h6>
-                        <h6 className='col-12 col-md-6 col-lg-3'>Words/Minute: {user?.wpm ?? <span> -- </span>}words</h6>
+                        <h6 className='col-12 col-md-6 col-lg-3'>Words/Minute: {user?.wpm ?? <span> -- </span>} words</h6>
                         <h6 className='col-12 col-md-6 col-lg-3'>Typing-Accuracy: {user?.taccuracy ?? <span> -- </span>}%</h6>
                         {user.country ? <h6>Country: {user.country}</h6> : <h6>Country: Not Found</h6>}
                         {user.ip ? <h6>IP: {user.ip}</h6> : <h6>IP: Not Found</h6>}
