@@ -79,6 +79,7 @@ function App() {
 
     // using only to get Positions
     useEffect(() => {
+        console.log("fix:submit-form-flow");
         if (mount) {
             getPositions();
         }
@@ -124,11 +125,19 @@ function App() {
             const dataObj = allData
             userCV(dataObj)
              .then((res) => {
-                const data = res && res.data && res.data.user;
-                console.log('data success ', data);
-                localStorage.setItem("userID", data.userID);
-                localStorage.setItem("email", data.email);
-                navigate(`/startTest`, { replace: true });
+                console.log('SaveDataToDataBase: 128', res);
+                const user = res?.data?.user;
+                if(user?.userID && user?.email) {
+                    localStorage.setItem("userID", user.userID);
+                    localStorage.setItem("email", user.email);
+                    navigate(`/startTest`, { replace: true });
+                } else {
+                    console.log("userID and email not found");
+                    toast.error("Something went to wrong!", {
+                        position: 'top-center', style: { width: '28rem' }
+                    });
+                }
+                
                 setLoading(false)
             }).catch((error) => {
                 console.log("SaveDataToDataBase : 115 >>> ",error)
@@ -137,27 +146,6 @@ function App() {
                     position: 'top-center', style: { width: '28rem' }
                 });
             })
-        //     let UserDataRes = await axios.post(`${process.env.REACT_APP_SERVER}/user/userCV`, { data: allData });
-        //     if (UserDataRes?.data?.success) {
-        //         console.log('data success ');
-        //         const { userID, email } = UserDataRes.data.user;
-        //         localStorage.setItem("userID", userID);
-        //         localStorage.setItem("email", email);
-        //         navigate(`/startTest`, { replace: true })
-        //     }
-        //     else {
-        //         toast.error(UserDataRes.data.error, {
-        //             position: 'top-center', style: { width: '28rem' }
-        //         });
-        //     }
-        //     setLoading(false);
-        // }
-        // catch (error) {
-        //     toast.error(error.response.data.error, {
-        //         position: 'top-center', style: { width: '28rem' }
-        //     });
-        //     setLoading(false);
-        // }
     }
 
 
@@ -185,8 +173,9 @@ function App() {
 
                 let fileData = { fileName, data }
                     uploadFile(fileData).then((res) => {
-                        const file = res?.data?.file 
-                        SaveDataToDataBase({file: true}, file)  
+                        console.log("handleSubmit: 189 >>> ", res);
+                        const file = res?.data?.file;
+                        SaveDataToDataBase({file: true}, file);
                     }).catch((err) => {
                         console.log("handleSubmit: 213 >>> ", err);
                         toast.error("Something went to wrong!", {
