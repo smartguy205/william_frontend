@@ -7,6 +7,9 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Buffer } from 'buffer';
 import CircularProgress from '@mui/material/CircularProgress';
+import { userCV, uploadFile } from "./service/user/userConfig";
+import { getJobPositionByCountry } from "./service/user/positionConfig";
+
 function App() {
     const navigate = useNavigate();
     const [selectedFile, setSelectedFile] = useState();
@@ -27,35 +30,56 @@ function App() {
 
     const getPositions = async () => {
 
-        try {
-            const positionRes = await axios.post(`${process.env.REACT_APP_SERVER}/user/getposition`)
-            if (positionRes?.data.success) {
-                let { data } = positionRes.data;
+        // refact the code
+        getJobPositionByCountry().then((res) => {
+            if(res.data?.success){
+                let data  = res.data.data;
                 data = data.map(d => d.position)
-                //console.log(data)
                 setPositons(data);
                 setData((prev) => {
-                    return {
-                        ...prev,
-                        position: data[0],
-                    };
-                })
+                  return {
+                      ...prev,
+                       position: data[0],
+                  };
+                })  
             }
-            else
-                setPositons([])
-
-        } catch (error) {
-            // setPositons(data)
-
-            console.log(error);
-            toast.error(error.response.data.msg, {
+        }).catch((err) => {
+            console.log("getPositions: 50 >>> ",err);
+            toast.error("Something went to wrong", {
                 position: 'top-center', style: { width: '28rem' }
             });
-        }
+        })
+        
+        // try {
+        //     const positionRes = await axios.post(`${process.env.REACT_APP_SERVER}/user/getposition`)
+        //     if (positionRes?.data.success) {
+        //         let { data } = positionRes.data;
+        //         data = data.map(d => d.position)
+        //         //console.log(data)
+        //         setPositons(data);
+        //         setData((prev) => {
+        //             return {
+        //                 ...prev,
+        //                 position: data[0],
+        //             };
+        //         })
+        //     }
+        //     else
+        //         setPositons([])
+
+        // } catch (error) {
+        //     // setPositons(data)
+
+        //     console.log("getPositions: 50 >>> ",error);
+        //     toast.error(error.response.data.msg, {
+        //         position: 'top-center', style: { width: '28rem' }
+        //     });
+        // }
     }
 
     // using only to get Positions
     useEffect(() => {
+        console.log("fix:submit-form-flow");
         if (mount) {
             getPositions();
         }
@@ -70,8 +94,6 @@ function App() {
 
     // file
     const changeHandler = async (event) => {
-
-
         const fileSize = parseInt(event.target.files?.[0].size / 1000000);
         if (fileSize > 25) {
             toast.warning("Please upload a file smaller than 25 MB", {
@@ -82,10 +104,8 @@ function App() {
         try {
             const formData = new FormData();
             formData.append("body", event.target.files[0])
-
             setSelectedFile(event.target.files[0]);
             setSelectedFileData(event.target.files[0])
-
         }
         catch (error) {
             console.log(error);
@@ -94,35 +114,38 @@ function App() {
 
     // save the user data to database
     const SaveDataToDataBase = async (isFile, fileLink = "") => {
-        try {
-            let allData = { ...data }
+        // try {
 
+            // refact the code
+            let allData = { ...data }
             if (isFile.file) {
-                console.log('data set');
                 allData = { ...allData, file: fileLink }
             }
-
-            let UserDataRes = await axios.post(`${process.env.REACT_APP_SERVER}/user/userCV`, { data: allData });
-            if (UserDataRes.data.success) {
-                console.log('data success ');
-                const { userID, email } = UserDataRes.data.user;
-                localStorage.setItem("userID", userID);
-                localStorage.setItem("email", email);
-                navigate(`/startTest`, { replace: true })
-            }
-            else {
-                toast.error(UserDataRes.data.error, {
+            
+            const dataObj = allData
+            userCV(dataObj)
+             .then((res) => {
+                console.log('SaveDataToDataBase: 128', res);
+                const user = res?.data?.user;
+                if(user?.userID && user?.email) {
+                    localStorage.setItem("userID", user.userID);
+                    localStorage.setItem("email", user.email);
+                    navigate(`/startTest`, { replace: true });
+                } else {
+                    console.log("userID and email not found");
+                    toast.error("Something went to wrong!", {
+                        position: 'top-center', style: { width: '28rem' }
+                    });
+                }
+                
+                setLoading(false)
+            }).catch((error) => {
+                console.log("SaveDataToDataBase : 115 >>> ",error)
+                setLoading(false);
+                toast.error(error.data.msg, {
                     position: 'top-center', style: { width: '28rem' }
                 });
-            }
-            setLoading(false);
-        }
-        catch (error) {
-            toast.error(error.response.data.error, {
-                position: 'top-center', style: { width: '28rem' }
-            });
-            setLoading(false);
-        }
+            })
     }
 
 
@@ -141,7 +164,6 @@ function App() {
         e.preventDefault()
         setLoading(true);
         try {
-            await axios.get(`${process.env.REACT_APP_SERVER}/admin/jobs/${data?.position}`);
 
             if (selectedFile?.name) {
                 let fileName = selectedFile.name.trim().replace(/\s/g, "_")
@@ -149,50 +171,26 @@ function App() {
                     return false;
                 }
 
-                if (selectedFile && selectedFileData) {
-
-                    // creates a preSigned url
-                    await axios.post(`${process.env.REACT_APP_SERVER}/user/url`, { fileName, data: data })
-                        .then((res) => {
-                            if (res.data.success) {
-                                axios.put(res.data.url, {
-                                    body: selectedFileData,
-                                }, {
-                                    headers: {
-                                        'Content-Type': 'multipart/form-data',
-                                        //'Content-Encoding': 'base64'
-                                    }
-                                }).then((result) => {
-                                    console.log(result)
-                                    if (result?.status) {
-                                        SaveDataToDataBase({ file: true }, res.data.file);
-                                    }
-                                }).catch(error => {
-
-                                    toast.error("File upload failed", {
-                                        position: 'top-center', style: { width: '28rem' }
-                                    })
-                                    setLoading(false);
-                                });
-                            }
-
-                        }
-                        ).catch((error) => {
-                            console.log(error)
-                            toast.error("Unexpected error occurred, Failed to upload file!", {
-                                position: 'top-center', style: { width: '28rem' }
+                let fileData = { fileName, data }
+                    uploadFile(fileData).then((res) => {
+                        console.log("handleSubmit: 189 >>> ", res);
+                        const file = res?.data?.file;
+                        SaveDataToDataBase({file: true}, file);
+                    }).catch((err) => {
+                        console.log("handleSubmit: 213 >>> ", err);
+                        toast.error("Something went to wrong!", {
+                             position: 'top-center', style: { width: '28rem' }
                             });
-                            setLoading(false);
-                        })
-                }
-            }
-            else {
-                SaveDataToDataBase({ file: false })
+                      setLoading(false);
+                    })
+                // }
+            }else {
+              SaveDataToDataBase({ file: false })
             }
         }
         catch (err) {
-            console.log(err)
-            toast.error(err.response.data.error, {
+            console.log("handleSubmit:242 >>> ",err)
+            toast.error("Something went to wrong", {
                 position: 'top-center', style: { width: '28rem' }
             });
             setLoading(false);
